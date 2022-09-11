@@ -23,7 +23,7 @@ namespace API.Controllers
         [HttpPost(template: "register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-            if(await UserExists(username: registerDto.Username))
+            if(await UserExists(registerDto.Username))
                 return BadRequest(error: "Sorry,but the Username is taken");
             
             using HMACSHA512 hmac = new HMACSHA512();
@@ -35,7 +35,7 @@ namespace API.Controllers
                 PasswordSalt = hmac.Key,
             };
 
-            _context.Users.Add(entity: user);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             return new UserDto
@@ -51,9 +51,9 @@ namespace API.Controllers
             AppUser user = await _context.Users.SingleOrDefaultAsync(predicate: x => x.UserName == loginDto.Username);
             if(user == null) return Unauthorized(value: "Invalid username");
 
-            using HMACSHA512 hmac = new HMACSHA512(key: user.PasswordSalt);
+            using HMACSHA512 hmac = new HMACSHA512( user.PasswordSalt);
 
-            byte[] computedHash = hmac.ComputeHash(buffer: Encoding.UTF8.GetBytes(s: loginDto.Password));
+            byte[] computedHash = hmac.ComputeHash( Encoding.UTF8.GetBytes(s: loginDto.Password));
 
             for (int i = 0; i < computedHash.Length; i++)
             {
