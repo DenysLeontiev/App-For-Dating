@@ -11,7 +11,9 @@ namespace API.Extensions
         {
             string connectionString = config.GetConnectionString("DefaultConnection");
             services.AddDbContext<DataContext>(options => options.UseSqlite(connectionString));
-
+            
+            services.AddScoped<IPhotoService, PhotoService>();
+            services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
